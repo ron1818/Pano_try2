@@ -2,12 +2,10 @@ package com.example.try2;
 
 import android.annotation.SuppressLint;
 import android.hardware.Camera.Size;
-import android.media.Image;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.SurfaceView;
@@ -16,10 +14,9 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
-
-import com.example.try2.MyCameraView;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraActivity;
@@ -36,7 +33,6 @@ import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import java.util.ListIterator;
 
 public class MainActivity extends CameraActivity implements CvCameraViewListener2 {
     private static final String TAG = "OCVSample::Activity";
@@ -55,6 +51,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     private ToggleButton recordBtn;
 
     private ImageView arrow;
+    private TextView amplitudeTxt;
 
     private Mat img_rgba, img_bgr;
 
@@ -67,16 +64,16 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         @Override
         public void onManagerConnected(int status) {
             switch (status) {
-                case LoaderCallbackInterface.SUCCESS:
-                {
+                case LoaderCallbackInterface.SUCCESS: {
                     Log.i(TAG, "OpenCV loaded successfully");
                     mOpenCvCameraView.enableView();
                     // mOpenCvCameraView.setOnTouchListener(MainActivity.this);
-                } break;
-                default:
-                {
+                }
+                break;
+                default: {
                     super.onManagerConnected(status);
-                } break;
+                }
+                break;
             }
         }
     };
@@ -85,7 +82,9 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         Log.i(TAG, "Instantiated new " + this.getClass());
     }
 
-    /** Called when the activity is first created. */
+    /**
+     * Called when the activity is first created.
+     */
     @Override
     public void onCreate(Bundle savedInstanceState) {
         Log.i(TAG, "called onCreate");
@@ -102,7 +101,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
         // create capture button, will be removed
         captureBtn = (Button) findViewById(R.id.CaptureBtn);
-        captureBtn.setOnClickListener(new View.OnClickListener(){
+        captureBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onCapture(v);
@@ -121,6 +120,8 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         });
 
         arrow = (ImageView) findViewById(R.id.ArrowImage);
+        amplitudeTxt = (TextView) findViewById(R.id.AmplitudeTxt);
+
 
     }
 
@@ -129,16 +130,14 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     }
 
     @Override
-    public void onPause()
-    {
+    public void onPause() {
         super.onPause();
         if (mOpenCvCameraView != null)
             mOpenCvCameraView.disableView();
     }
 
     @Override
-    public void onResume()
-    {
+    public void onResume() {
         super.onResume();
         if (!OpenCVLoader.initDebug()) {
             Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
@@ -175,41 +174,67 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     }
 
     private OpticalFlowProcess oflk;
+    private int ofAmplitudeThreshold = 100;  // larger than 100px movement, create new frame
+    private double ofAngleThreshold = 0.17; // within 1.57 += 0.1, create new frame
+    private double angleStandard = Math.PI / 2.0;  // angle standard
+    private StitchOrientation cameraDir = StitchOrientation.Undetermined; // realtime camera direction
+    private StitchOrientation panoDir = StitchOrientation.Undetermined; // within one start/stop, can only stitch one direction
 
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
-        if(isRecording) { // if recording, take pictures every step frames
-            if(counter % step == 0){
+        if (isRecording) { // if recording, take pictures every step frames
+            if (counter % step == 0) {
                 // String fileName = getFilename();
                 // debug take picture
                 // mOpenCvCameraView.takePicture(fileName);
                 // Toast.makeText(this, String.format("frame %d Saved", counter), Toast.LENGTH_SHORT).show();
                 // UC: get gftt
-                if(!isFirstCaptured) { // if first frame is not captured, take GFTT on the first
+                if (!isFirstCaptured) { // if first frame is not captured, take GFTT on the first
                     oflk.GFTT(inputFrame.gray());
                     // to capture new frame
                     isFirstCaptured = true;
                 } else { // first captured, gftt calculated, need to calculate optical flow
                     oflk.OFLK(inputFrame.gray());
-                    // rotate arrow
-                    rotateArrow(oflk.orientation, oflk.amplitude);
-                }
-            }
-            counter++;
 
+                    // check camera moving direction
+                    if (oflk.orientation > (angleStandard - ofAngleThreshold)) // camera move to right
+                        cameraDir = StitchOrientation.Right;
+                    else if (oflk.orientation < -(angleStandard - ofAngleThreshold)) // camera move to left
+                        cameraDir = StitchOrientation.Left;
+                    else  // camera is not moving horizontally
+                        cameraDir = StitchOrientation.Undetermined;
+
+                    // check if amplitude,rotation larger than threshold
+                    if (oflk.amplitude > ofAngleThreshold)
+                        switch (cameraDir) {
+                            case Left:
+                                break;
+                            case Right:
+                                break;
+                            default:
+                        }
+
+                    // reset old frame TODO: need to start stitching
+                    isFirstCaptured = false;
+                }
+                // rotate arrow
+                rotateArrow(oflk.orientation, oflk.amplitude);
+            }
         }
+        counter++;
+
         img_rgba = inputFrame.rgba();
         // String size = String.format("Image Size: %d * %d", img_rgba.height(), img_rgba.width());
         return inputFrame.rgba();
     }
 
-    private void rotateArrow(double orientation, double amplitude)
-    {
+    private void rotateArrow(double orientation, double amplitude) {
         runOnUiThread(new Runnable() {
                           @Override
                           public void run() {
                               // rotation should be degree
-                              float rot = (float)Math.toDegrees(orientation-Math.PI/2.0);
+                              float rot = (float) Math.toDegrees(orientation - Math.PI / 2.0);
                               arrow.setRotation(rot);
+                              amplitudeTxt.setText(String.format("%.2f @ %.2f, %s", amplitude, orientation, cameraDir.toString()));
                           }
                       }
         );
@@ -256,11 +281,11 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     }
 
     @SuppressLint("SimpleDateFormat")
-    private String getFilename(){
+    private String getFilename() {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd_HHmmss");
         String currentDateandTime = sdf.format(new Date());
         File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        String fileName = "DSC_"+currentDateandTime+".jpg";
+        String fileName = "DSC_" + currentDateandTime + ".jpg";
         File file = new File(path, fileName);
         Boolean bool = null;
         fileName = file.toString();
@@ -268,10 +293,11 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     }
 
     private boolean onCapture(View v) {
-        Log.i(TAG,"onCapture event");
+        Log.i(TAG, "onCapture event");
         String fileName = getFilename();
         mOpenCvCameraView.takePicture(fileName);
         Toast.makeText(this, fileName + " saved", Toast.LENGTH_SHORT).show();
         return false;
     }
 }
+
