@@ -15,6 +15,7 @@ import org.opencv.video.Video;
 import java.util.ArrayList;
 
 public class OpticalFlowProcess {
+    private final String TAG = "OFLK";
     private Mat old_frame, old_gray;
     private Mat new_frame, new_gray;
     private MatOfPoint p0MatofPoint;
@@ -30,10 +31,9 @@ public class OpticalFlowProcess {
         p0MatofPoint = new MatOfPoint();
         // convColor2Gray(frame, true);
         // frame is input_frame.gray;
-        old_gray = frame;
+        old_gray = frame.clone();
         Imgproc.goodFeaturesToTrack(old_gray, p0MatofPoint,100,0.3,7, new Mat(),7,false,0.04);
         p0 = new MatOfPoint2f(p0MatofPoint.toArray());
-        p1 = new MatOfPoint2f();
     }
 
     private void convColor2Gray(Mat frame, boolean isold){
@@ -50,14 +50,15 @@ public class OpticalFlowProcess {
 
     public void OFLK(Mat frame){
 
+        p1 = new MatOfPoint2f(); // initialize p1
         // convColor2Gray(frame, false);
         // frame is input_frame.gray;
-        new_frame = frame;
+        new_gray = frame.clone();
         // calculate optical flow
         MatOfByte status = new MatOfByte();
         MatOfFloat err = new MatOfFloat();
         TermCriteria criteria = new TermCriteria(TermCriteria.COUNT + TermCriteria.EPS,10,0.03);
-        Video.calcOpticalFlowPyrLK(old_gray, new_gray, p0, p1, status, err, new Size(15,15),2, criteria);
+        Video.calcOpticalFlowPyrLK(old_gray, new_gray, p0, p1, status, err, new Size(15,15),4, criteria);
         byte StatusArr[] = status.toArray();
         Point p0Arr[] = p0.toArray();
         Point p1Arr[] = p1.toArray();

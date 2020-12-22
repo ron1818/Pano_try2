@@ -57,6 +57,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     private int counter = 0;
     private int step = 5;
     private boolean isRecording = false;
+    private boolean isFirstCaptured = false;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -95,7 +96,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
         oflk = new OpticalFlowProcess();
 
-        /* // create capture button, will be removed
+        // create capture button, will be removed
         captureBtn = (Button) findViewById(R.id.CaptureBtn);
         captureBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -113,7 +114,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 onStartStopVideo(buttonView, isChecked);
             }
-        }); */
+        });
 
 
 
@@ -137,7 +138,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         super.onResume();
         if (!OpenCVLoader.initDebug()) {
             Log.d(TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0, this, mLoaderCallback);
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION, this, mLoaderCallback);
         } else {
             Log.d(TAG, "OpenCV library found inside package. Using it!");
             mLoaderCallback.onManagerConnected(LoaderCallbackInterface.SUCCESS);
@@ -179,13 +180,20 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
                 // mOpenCvCameraView.takePicture(fileName);
                 // Toast.makeText(this, String.format("frame %d Saved", counter), Toast.LENGTH_SHORT).show();
                 // UC: get gftt
-                oflk.GFTT(inputFrame.gray());
+                if(!isFirstCaptured) { // if first frame is not captured, take GFTT on the first
+                    oflk.GFTT(inputFrame.gray());
+                    // to capture new frame
+                    isFirstCaptured = true;
+                } else { // first captured, gftt calculated, need to calculate optical flow
+                    oflk.OFLK(inputFrame.gray());
+
+                }
             }
             counter++;
 
         }
         img_rgba = inputFrame.rgba();
-        String size = String.format("Image Size: %d * %d", img_rgba.height(), img_rgba.width());
+        // String size = String.format("Image Size: %d * %d", img_rgba.height(), img_rgba.width());
         return inputFrame.rgba();
     }
 
@@ -203,9 +211,9 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         Size resolution = mResolutionList.get(0);
         mOpenCvCameraView.setResolution(resolution);
         resolution = mOpenCvCameraView.getResolution(true);
-        Toast.makeText(this, String.format("Preview resolution: %s", String.valueOf(resolution)), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, String.format("Preview resolution: %d*%d", resolution.width, resolution.height), Toast.LENGTH_SHORT).show();
         resolution = mOpenCvCameraView.getResolution(false);
-        Toast.makeText(this, String.format("Picture resolution: %s", String.valueOf(resolution)), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, String.format("Picture resolution: %d*%d", resolution.width, resolution.height), Toast.LENGTH_SHORT).show();
     }
 
 
