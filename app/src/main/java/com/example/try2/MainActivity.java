@@ -2,6 +2,7 @@ package com.example.try2;
 
 import android.annotation.SuppressLint;
 import android.hardware.Camera.Size;
+import android.media.Image;
 import android.os.Bundle;
 import android.os.Environment;
 import android.util.Log;
@@ -14,6 +15,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CompoundButton;
+import android.widget.ImageView;
 import android.widget.Toast;
 import android.widget.ToggleButton;
 
@@ -51,6 +53,8 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
     private Button captureBtn;
     private ToggleButton recordBtn;
+
+    private ImageView arrow;
 
     private Mat img_rgba, img_bgr;
 
@@ -116,7 +120,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
             }
         });
 
-
+        arrow = (ImageView) findViewById(R.id.ArrowImage);
 
     }
 
@@ -186,7 +190,8 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
                     isFirstCaptured = true;
                 } else { // first captured, gftt calculated, need to calculate optical flow
                     oflk.OFLK(inputFrame.gray());
-
+                    // rotate arrow
+                    rotateArrow(oflk.orientation, oflk.amplitude);
                 }
             }
             counter++;
@@ -195,6 +200,19 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         img_rgba = inputFrame.rgba();
         // String size = String.format("Image Size: %d * %d", img_rgba.height(), img_rgba.width());
         return inputFrame.rgba();
+    }
+
+    private void rotateArrow(double orientation, double amplitude)
+    {
+        runOnUiThread(new Runnable() {
+                          @Override
+                          public void run() {
+                              // rotation should be degree
+                              float rot = (float)Math.toDegrees(orientation-Math.PI/2.0);
+                              arrow.setRotation(rot);
+                          }
+                      }
+        );
     }
 
     @Override
