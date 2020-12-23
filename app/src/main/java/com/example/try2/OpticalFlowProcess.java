@@ -31,7 +31,7 @@ public class OpticalFlowProcess {
         p0MatofPoint = new MatOfPoint();
         // convColor2Gray(frame, true);
         // frame is input_frame.gray;
-        old_gray = frame.clone();
+        old_gray = scaleImage(frame);
         Imgproc.goodFeaturesToTrack(old_gray, p0MatofPoint,100,0.3,7, new Mat(),7,false,0.04);
         p0 = new MatOfPoint2f(p0MatofPoint.toArray());
     }
@@ -48,12 +48,20 @@ public class OpticalFlowProcess {
         }
     }
 
+    public double scaleFactor = 0.25;
+
+    private Mat scaleImage(Mat frame){
+        Mat m = new Mat();
+        Imgproc.resize(frame, m, new Size(0,0), scaleFactor, scaleFactor);
+        return m;
+    }
+
     public void OFLK(Mat frame){
 
         p1 = new MatOfPoint2f(); // initialize p1
         // convColor2Gray(frame, false);
         // frame is input_frame.gray;
-        new_gray = frame.clone();
+        new_gray = scaleImage(frame);
         // calculate optical flow
         MatOfByte status = new MatOfByte();
         MatOfFloat err = new MatOfFloat();

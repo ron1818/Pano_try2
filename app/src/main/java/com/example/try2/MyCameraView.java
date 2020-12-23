@@ -6,9 +6,11 @@ import android.util.AttributeSet;
 import android.util.Log;
 
 import org.opencv.android.JavaCameraView;
+import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
 import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.FileOutputStream;
 import java.util.List;
@@ -76,12 +78,17 @@ public class MyCameraView extends JavaCameraView implements Camera.PictureCallba
 
         // Write the image in a file (in jpeg format)
         try {
-            FileOutputStream fos = new FileOutputStream(mPictureFileName);
+            // rotate 90 clockwise then save image
+            Mat rot = new Mat();
+            Core.rotate(colored, rot, Core.ROTATE_90_CLOCKWISE);
 
-            fos.write(data);
-            fos.close();
+            Imgcodecs.imwrite(mPictureFileName, rot);
+            // FileOutputStream fos = new FileOutputStream(mPictureFileName);
 
-        } catch (java.io.IOException e) {
+            // fos.write(data);
+            // fos.close();
+
+        } catch (Exception e) {
             Log.e("PictureDemo", "Exception in photoCallback", e);
         }
 

@@ -24,13 +24,13 @@ public class ImageStitchNative {
         switch (wh[0]) {
             case OK: {
                 // empty bimap of the stitched image size
-                /* Bitmap bitmap = Bitmap.createBitmap(wh[1], wh[2], Bitmap.Config.ARGB_8888);
+                Bitmap bitmap = Bitmap.createBitmap(wh[1], wh[2], Bitmap.Config.ARGB_8888);
                 int result = getBitmap(bitmap);
                 if (result == OK && bitmap != null){
                     listener.onSuccess(bitmap);
                 }else{
                     listener.onError("图片合成失败");
-                } */
+                }
                 listener.onError("Success");
             }
             break;
@@ -51,6 +51,8 @@ public class ImageStitchNative {
 
 
     private native static int[] stitchMats(long mat1, long mat2);
+
+    private native static int getBitmap(Bitmap bitmap);
 
 
 

@@ -14,6 +14,8 @@ public class StitchProcess implements ImageStitchNative.onStitchResultListener {
     private Mat mat1, mat2;
     private String p1, p2;
 
+    public Bitmap Stitched;
+
     public StitchProcess(String path1, String path2){
         Mat _mat1 = Imgcodecs.imread(path1);
         Mat _mat2 = Imgcodecs.imread(path2);
@@ -31,6 +33,7 @@ public class StitchProcess implements ImageStitchNative.onStitchResultListener {
 
     @Override
     public void onSuccess(Bitmap bitmap) {
+        Stitched = bitmap;
 
     }
 

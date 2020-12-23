@@ -51,7 +51,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     private SubMenu mResolutionMenu;
 
     private Button captureBtn;
-    private ToggleButton recordBtn, grayBtn;
+    private ToggleButton recordBtn;
     private Button stitchBtn;
 
     private ImageView arrow, pano;
@@ -152,16 +152,18 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
                 String img2 = file.toString();
                 sp = new StitchProcess(img1, img2);
                 sp.Stitch();
+                pano.setImageBitmap(sp.Stitched);
+                // after stitch, display image
             }
         });
 
-        TextView ntxt = (TextView) findViewById(R.id.NativeTxt);
-        ntxt.setText(stringFromJNI());
+        // TextView ntxt = (TextView) findViewById(R.id.NativeTxt);
+        // ntxt.setText(stringFromJNI());
 
-        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.luffy);
-        pano.setImageBitmap(bitmap);
+        // bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.luffy);
+        // pano.setImageBitmap(bitmap);
 
-        grayBtn = (ToggleButton) findViewById(R.id.GrayToggleBtn);
+        /* grayBtn = (ToggleButton) findViewById(R.id.GrayToggleBtn);
         grayBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -172,10 +174,10 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
                     showImage();
                 }
             }
-        });
+        }); */
     }
 
-    private void showGray() {
+    /* private void showGray() {
         int w = bitmap.getWidth();
         int h = bitmap.getHeight();
         int[] piexls = new int[w*h];
@@ -188,7 +190,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
     private void showImage() {
         pano.setImageBitmap(bitmap);
-    }
+    } */
 
     StitchProcess sp;
 
@@ -228,11 +230,12 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
     @Override
     public void onCameraViewStarted(int width, int height) {
-        mCameraStarted = true;
-        // setupMenuItems();
-        resizeImage();
-        img_rgba = new Mat(height, width, CvType.CV_8UC4);
-        img_bgr = new Mat(height, width, CvType.CV_8UC3);
+        if (!mCameraStarted) { // run once
+            resizeImage();
+            img_rgba = new Mat(height, width, CvType.CV_8UC4);
+            img_bgr = new Mat(height, width, CvType.CV_8UC3);
+            mCameraStarted = true;
+        }
     }
 
     public void onCameraViewStopped() {
@@ -242,7 +245,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
     private OpticalFlowProcess oflk;
     private int ofAmplitudeThreshold = 100;  // larger than 100px movement, create new frame
-    private double ofAngleThreshold = 0.17; // within 1.57 += 0.1, create new frame
+    private double ofAngleThreshold = 0.17; // within 1.4, -1.4, create new frame
     private double angleStandard = Math.PI / 2.0;  // angle standard
     private StitchOrientation cameraDir = StitchOrientation.Undetermined; // realtime camera direction
     private StitchOrientation panoDir = StitchOrientation.Undetermined; // within one start/stop, can only stitch one direction
@@ -272,7 +275,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
                         cameraDir = StitchOrientation.Undetermined;
 
                     // check if amplitude,rotation larger than threshold
-                    if (oflk.amplitude > ofAngleThreshold)
+                    if (oflk.amplitude > ofAmplitudeThreshold*oflk.scaleFactor)
                         switch (cameraDir) {
                             case Left:
                                 break;
