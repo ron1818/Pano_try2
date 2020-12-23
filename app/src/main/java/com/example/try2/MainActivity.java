@@ -27,6 +27,7 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.w3c.dom.Text;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -49,6 +50,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
     private Button captureBtn;
     private ToggleButton recordBtn;
+    private Button stitchBtn;
 
     private ImageView arrow;
     private TextView amplitudeTxt;
@@ -60,9 +62,9 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     private boolean isRecording = false;
     private boolean isFirstCaptured = false;
 
-    /* static{
-        System.loadLibrary("opencv_java3");
-    } */
+    static{
+        System.loadLibrary("native-lib");
+    }
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -81,6 +83,10 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
             }
         }
     };
+
+
+    private native String stringFromJNI();
+    public native int[] gray(int[] pixels, int w, int h);
 
     public MainActivity() {
         Log.i(TAG, "Instantiated new " + this.getClass());
@@ -126,8 +132,26 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         arrow = (ImageView) findViewById(R.id.ArrowImage);
         amplitudeTxt = (TextView) findViewById(R.id.AmplitudeTxt);
 
-
+        /* stitchBtn = (Button) findViewById(R.id.StitchBtn);
+        stitchBtn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+                String fileName = "stitch/boat1.jpg";
+                File file = new File(path, fileName);
+                String img1 = file.toString();
+                fileName = "stitch/boat2.jpg";
+                file = new File(path, fileName);
+                String img2 = file.toString();
+                sp = new StitchProcess(img1, img2);
+                sp.Stitch();
+            }
+        }); */
+        TextView ntxt = (TextView) findViewById(R.id.NativeTxt);
+        ntxt.setText(stringFromJNI());
     }
+
+    // StitchProcess sp;
 
     private void onStartStopVideo(CompoundButton buttonView, boolean isChecked) {
         isRecording = isChecked;

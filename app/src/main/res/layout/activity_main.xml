@@ -27,7 +27,7 @@
             android:textOn="@string/ToggleBtnOn" />
 
         <Button
-            android:id="@+id/Stitch"
+            android:id="@+id/StitchBtn"
             android:text="@string/StitchBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
@@ -38,6 +38,10 @@
             android:src="@drawable/ic_arrow"/>
         <TextView
             android:id="@+id/AmplitudeTxt"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+        <TextView
+            android:id="@+id/NativeTxt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"/>
     </LinearLayout>

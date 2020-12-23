@@ -14,14 +14,26 @@ if(OpenCV_FOUND)
 else(OpenCV_FOUND)
     message(FATAL_ERROR "OpenCV library not found")
 endif(OpenCV_FOUND)
+# set(CMAKE_MODULE_LINKER_FLAGS "-Wl, --hash-style=sysv, -v")
+set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS_RELEASE} -Wl,--hash-style=both,-lc++")
+set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS_RELEASE} -Wl,--hash-style=both,-lc++")
+set(CMAKE_MODULE_LINKER_FLAGS "${CMAKE_MODULE_LINKER_FLAGS_RELEASE} -Wl,--hash-style=both,-lc++")
 
 # ###################### 项目原生模块 ###########################
 
+# add_library( native-stitch2
+#              SHARED
+#              src/main/cpp/native-stitch2.cpp)
+#
+# target_link_libraries( native-stitch2
+#                        ${OpenCV_LIBS}
+#                        log
+#                        jnigraphics)
 add_library( native-lib
-             SHARED
-             src/main/cpp/native-lib.cpp)
+        SHARED
+        src/main/cpp/native-lib.cpp)
 
 target_link_libraries( native-lib
-                       ${OpenCV_LIBS}
-                       log
-                       jnigraphics)
+        ${OpenCV_LIBS}
+        log
+        jnigraphics)
