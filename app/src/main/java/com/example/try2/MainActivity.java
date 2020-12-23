@@ -60,6 +60,10 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     private boolean isRecording = false;
     private boolean isFirstCaptured = false;
 
+    /* static{
+        System.loadLibrary("opencv_java3");
+    } */
+
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {

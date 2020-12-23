@@ -14,6 +14,13 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        externalNativeBuild {
+            cmake {
+                cppFlags ""
+                arguments "-DANDROID_STL=c++_shared"
+                abiFilters 'armeabi-v7a', 'x86', 'x86-64'
+            }
+        }
     }
 
     buildTypes {
@@ -29,9 +36,10 @@ android {
     ndkVersion '21.1.6352462'
     // Redirect so directory to src /main/libs and src/main/jniLibs, the original src/main/jniLibs
     sourceSets { main { jni.srcDirs = ['src/main/jni', 'src/main/jni/'] } }
+    // sourceSets { main { jni.srcDirs = ['libs'] } }
 
 
-    task ndkBuild(type: Exec, description: 'Compile JNI source with NDK') {
+    /* /* /* /* /* /* /* /* task ndkBuild(type: Exec, description: 'Compile JNI source with NDK') {
         Properties properties = new Properties()
         properties.load(project.rootProject.file('local.properties').newDataInputStream())
         def ndkDir = properties.getProperty('ndk.dir')
@@ -57,7 +65,7 @@ android {
         } else {
             commandLine "$ndkDir/ndk-build", 'clean', '-C', file('src/main/jni').absolutePath
         }
-    }
+    } */
 
 
 }

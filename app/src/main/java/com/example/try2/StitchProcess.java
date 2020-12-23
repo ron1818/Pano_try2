@@ -12,6 +12,6 @@ public class StitchProcess {
 
     public void Stitch(Mat img1, Mat img2){
         // warpPerspective()
-        Calib3d.findHomography()
+        // Calib3d.findHomography();
     }
 }
