@@ -17,13 +17,13 @@ android {
         externalNativeBuild {
             // https://www.jianshu.com/p/eab531db0be3
             cmake {
-                cppFlags "-std=c++11 -stdlib=libc++ -fopenmp -static-openmp"
-                arguments "-DANDROID_ARM_NEON=TRUE" ,
+                /* arguments "-DANDROID_ARM_NEON=TRUE" ,
                         "-DANDROID_TOOLCHAIN=clang++",
                         "-DANDROID_STL=c++_shared",
                         "-DANDROID_PLATFORM=android-16",
                         "-DANDROID_ALLOW_UNDEFINED_SYMBOLS=TRUE",
-                        "-Xlint:deprecation"
+                        "-Xlint:deprecation" */
+                cppFlags "-std=c++11", "-Wno-error=format-security", "-fpermissive", "-fopenmp", "-static-openmp", "-Og"
                 abiFilters 'armeabi-v7a', 'x86', 'x86_64'
             }
         }
@@ -43,14 +43,14 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     // Redirect so directory to src /main/libs and src/main/jniLibs, the original src/main/jniLibs
-    sourceSets { main { jni.srcDirs = ['src/main/jni', 'src/main/jni/'] } }
+    sourceSets { main { jni.srcDirs = ['src/main/jni/libs'] } }
     // sourceSets { main { jni.srcDirs = ['libs'] } }
     externalNativeBuild{
         cmake{
             path "CMakeLists.txt"
         }
     }
-    ndkVersion '21.1.6352462'
+    ndkVersion '22.0.7026061'
 
 
     /* /* /* /* /* /* /* /* task ndkBuild(type: Exec, description: 'Compile JNI source with NDK') {

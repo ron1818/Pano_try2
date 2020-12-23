@@ -1,6 +1,8 @@
 package com.example.try2;
 
 import android.annotation.SuppressLint;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera.Size;
 import android.os.Bundle;
 import android.os.Environment;
@@ -49,10 +51,10 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     private SubMenu mResolutionMenu;
 
     private Button captureBtn;
-    private ToggleButton recordBtn;
+    private ToggleButton recordBtn, grayBtn;
     private Button stitchBtn;
 
-    private ImageView arrow;
+    private ImageView arrow, pano;
     private TextView amplitudeTxt;
 
     private Mat img_rgba, img_bgr;
@@ -61,6 +63,8 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     private int step = 5;
     private boolean isRecording = false;
     private boolean isFirstCaptured = false;
+
+    private Bitmap bitmap;
 
     static{
         System.loadLibrary("native-lib");
@@ -132,6 +136,8 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         arrow = (ImageView) findViewById(R.id.ArrowImage);
         amplitudeTxt = (TextView) findViewById(R.id.AmplitudeTxt);
 
+        pano = (ImageView) findViewById(R.id.PanoImageView);
+
         /* stitchBtn = (Button) findViewById(R.id.StitchBtn);
         stitchBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -149,6 +155,37 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         }); */
         TextView ntxt = (TextView) findViewById(R.id.NativeTxt);
         ntxt.setText(stringFromJNI());
+
+        bitmap = BitmapFactory.decodeResource(getResources(), R.drawable.luffy);
+        pano.setImageBitmap(bitmap);
+
+        grayBtn = (ToggleButton) findViewById(R.id.GrayToggleBtn);
+        grayBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    showGray();
+                }
+                else{
+                    showImage();
+                }
+            }
+        });
+    }
+
+    private void showGray() {
+        int w = bitmap.getWidth();
+        int h = bitmap.getHeight();
+        int[] piexls = new int[w*h];
+        bitmap.getPixels(piexls,0,w,0,0,w,h);
+        int[] resultData =gray(piexls,w,h);
+        Bitmap resultImage = Bitmap.createBitmap(w,h, Bitmap.Config.ARGB_8888);
+        resultImage.setPixels(resultData,0,w,0,0,w,h);
+        pano.setImageBitmap(resultImage);
+    }
+
+    private void showImage() {
+        pano.setImageBitmap(bitmap);
     }
 
     // StitchProcess sp;
