@@ -68,6 +68,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
     static{
         System.loadLibrary("native-lib");
+        System.loadLibrary("opencv_java4");
     }
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
@@ -246,6 +247,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     private StitchOrientation cameraDir = StitchOrientation.Undetermined; // realtime camera direction
     private StitchOrientation panoDir = StitchOrientation.Undetermined; // within one start/stop, can only stitch one direction
 
+    @Override
     public Mat onCameraFrame(CvCameraViewFrame inputFrame) {
         if (isRecording) { // if recording, take pictures every step frames
             if (counter % step == 0) {

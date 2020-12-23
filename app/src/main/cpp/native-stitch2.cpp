@@ -5,7 +5,7 @@
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/base.hpp>
 #import <opencv2/stitching.hpp>
-// #import "include/opencv2/imgcodecs.hpp"
+#import "include/opencv2/imgcodecs.hpp"
 
 #define BORDER_GRAY_LEVEL 0
 
@@ -36,19 +36,21 @@ Java_com_example_try2_ImageStitchNative_stitchMats(JNIEnv *env, jclass clazz, jl
     mats.push_back(m1->clone());
     mats.push_back(m2->clone());
 
-    Stitcher stitcher = cv::Stitcher::createDefault(false);
+    Stitcher::Mode mode = Stitcher::PANORAMA;
+    Ptr<Stitcher> stitcher = cv::Stitcher::create(mode);
 
     //stitcher.setRegistrationResol(0.6);
     // stitcher.setWaveCorrection(false);
     /*=match_conf defaults to 0.65, I choose 0.8, if there is too much feature, there will be no feature points, and 0.8 will fail*/
     detail::BestOf2NearestMatcher *matcher = new detail::BestOf2NearestMatcher(false, 0.5f);
-    stitcher.setFeaturesMatcher(matcher);
-    stitcher.setBundleAdjuster(new detail::BundleAdjusterRay());
-    stitcher.setSeamFinder(new detail::NoSeamFinder);
-    stitcher.setExposureCompensator(new detail::NoExposureCompensator());//exposure compensation
-    stitcher.setBlender(new detail::FeatherBlender());
+    stitcher->setFeaturesMatcher(matcher);
+    stitcher->setBundleAdjuster(new detail::BundleAdjusterRay());
+    stitcher->setSeamFinder(new detail::NoSeamFinder);
+    stitcher->setExposureCompensator(new detail::NoExposureCompensator());//exposure compensation
+    stitcher->setBlender(new detail::FeatherBlender());
 
-    Stitcher::Status state = stitcher.stitch(mats, finalMat);
+    Stitcher::Status state = stitcher->stitch(mats, finalMat);
+    // Stitcher::Status state = stitcher.composePanorama(mats, finalMat);
 
     LOGI ("splicing result: %d", state);
 //        finalMat = clipping(finalMat);
