@@ -24,12 +24,12 @@ android {
                         "-DANDROID_ALLOW_UNDEFINED_SYMBOLS=TRUE",
                         "-Xlint:deprecation" */
                 arguments "-DCMAKE_SYSTEM_NAME=Android", "-DANDROID_STL=c++_shared"
-                        // "-DCMAKE_TOOLCHAIN_FILE=G:/workspace/AndroidStudioProjects/OpenCV-3.4.10-android-sdk/sdk/native/jni/android.toolchain.cmake"
-                cppFlags "-std=c++11", "-Wno-error=format-security", "-fpermissive", "-fopenmp","-Og", "-static-openmp"
+                // "-DCMAKE_TOOLCHAIN_FILE=G:/workspace/AndroidStudioProjects/OpenCV-3.4.10-android-sdk/sdk/native/jni/android.toolchain.cmake"
+                cppFlags "-std=c++11", "-Wno-error=format-security", "-fpermissive", "-fopenmp", "-Og", "-static-openmp"
                 abiFilters 'armeabi-v7a', 'x86', 'x86_64'
             }
         }
-        ndk{
+        ndk {
             abiFilters 'armeabi-v7a', 'x86', 'x86_64'
         }
     }
@@ -45,10 +45,15 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
     // Redirect so directory to src /main/libs and src/main/jniLibs, the original src/main/jniLibs
-    sourceSets { main { jni.srcDirs = ['src/main/jni/libs'] } }
+    sourceSets {
+        main {
+            jni.srcDirs = ['src/main/jni/libs']
+            jniLibs.srcDirs = ['libs']
+        }
+    }
     // sourceSets { main { jni.srcDirs = ['libs'] } }
-    externalNativeBuild{
-        cmake{
+    externalNativeBuild {
+        cmake {
             path "CMakeLists.txt"
         }
     }
