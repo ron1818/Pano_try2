@@ -1,3 +1,4 @@
 include ':opencv401'
 include ':app'
 rootProject.name = "Try2"
+include ':opencv420'
