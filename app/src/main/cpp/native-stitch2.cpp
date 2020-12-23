@@ -4,8 +4,8 @@
 #include <jni.h>
 #include <opencv2/opencv.hpp>
 #include <opencv2/core/base.hpp>
-#import "opencv2/stitching.hpp"
-#import "opencv2/imgcodecs.hpp"
+#import <opencv2/stitching.hpp>
+// #import "include/opencv2/imgcodecs.hpp"
 
 #define BORDER_GRAY_LEVEL 0
 

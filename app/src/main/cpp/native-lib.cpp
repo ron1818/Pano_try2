@@ -6,7 +6,9 @@
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
-#include <opencv2/opencv.hpp>
+#include "opencv2/opencv.hpp"
+#include "opencv2/stitching.hpp"
+
 using namespace cv;
 using namespace std;
 
@@ -29,6 +31,7 @@ Java_com_example_try2_MainActivity_gray(JNIEnv *env, jobject thiz, jintArray buf
     }
 
     Mat imgData(h, w, CV_8UC4, (unsigned char *) cbuf);
+
 
     uchar* ptr = imgData.ptr(0);
     for(int i = 0; i < w*h; i ++){

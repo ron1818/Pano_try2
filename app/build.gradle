@@ -23,7 +23,9 @@ android {
                         "-DANDROID_PLATFORM=android-16",
                         "-DANDROID_ALLOW_UNDEFINED_SYMBOLS=TRUE",
                         "-Xlint:deprecation" */
-                cppFlags "-std=c++11", "-Wno-error=format-security", "-fpermissive", "-fopenmp", "-static-openmp", "-Og"
+                arguments "-DCMAKE_SYSTEM_NAME=Android", "-DANDROID_STL=c++_shared"
+                        // "-DCMAKE_TOOLCHAIN_FILE=G:/workspace/AndroidStudioProjects/OpenCV-3.4.10-android-sdk/sdk/native/jni/android.toolchain.cmake"
+                cppFlags "-std=c++11", "-Wno-error=format-security", "-fpermissive", "-fopenmp","-Og"
                 abiFilters 'armeabi-v7a', 'x86', 'x86_64'
             }
         }

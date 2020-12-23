@@ -138,7 +138,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
         pano = (ImageView) findViewById(R.id.PanoImageView);
 
-        /* stitchBtn = (Button) findViewById(R.id.StitchBtn);
+        stitchBtn = (Button) findViewById(R.id.StitchBtn);
         stitchBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
@@ -152,7 +152,8 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
                 sp = new StitchProcess(img1, img2);
                 sp.Stitch();
             }
-        }); */
+        });
+
         TextView ntxt = (TextView) findViewById(R.id.NativeTxt);
         ntxt.setText(stringFromJNI());
 
@@ -188,7 +189,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         pano.setImageBitmap(bitmap);
     }
 
-    // StitchProcess sp;
+    StitchProcess sp;
 
     private void onStartStopVideo(CompoundButton buttonView, boolean isChecked) {
         isRecording = isChecked;
