@@ -14,11 +14,6 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        externalNativeBuild{
-            cmake{
-                cppFlags ""
-            }
-        }
     }
 
     buildTypes {
@@ -31,13 +26,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
-    ndkVersion '22'
+    ndkVersion '21.1.6352462'
+    // Redirect so directory to src /main/libs and src/main/jniLibs, the original src/main/jniLibs
     sourceSets { main { jni.srcDirs = ['src/main/jni', 'src/main/jni/'] } }
 
-    sourceSets.main.jni.srcDirs = []
-    // Forbidden ndk function
-    sourceSets.main.jniLibs.srcDirs = ['src/main/libs', 'src/main/jniLibs']
-    // Redirect so directory to src / main / libs and src / main / jniLibs, the original src / main / jniLibs
 
     task ndkBuild(type: Exec, description: 'Compile JNI source with NDK') {
         Properties properties = new Properties()
