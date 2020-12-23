@@ -25,7 +25,7 @@ android {
                         "-Xlint:deprecation" */
                 arguments "-DCMAKE_SYSTEM_NAME=Android", "-DANDROID_STL=c++_shared"
                         // "-DCMAKE_TOOLCHAIN_FILE=G:/workspace/AndroidStudioProjects/OpenCV-3.4.10-android-sdk/sdk/native/jni/android.toolchain.cmake"
-                cppFlags "-std=c++11", "-Wno-error=format-security", "-fpermissive", "-fopenmp","-Og"
+                cppFlags "-std=c++11", "-Wno-error=format-security", "-fpermissive", "-fopenmp","-Og", "-static-openmp"
                 abiFilters 'armeabi-v7a', 'x86', 'x86_64'
             }
         }
@@ -91,7 +91,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.0.4'
-    implementation project(path: ':opencv3410')
+    implementation project(path: ':opencv401')
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'

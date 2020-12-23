@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.4.1)
 
 # ##################### OpenCV 环境 ############################
 #设置OpenCV-android-sdk路径
-set(OpenCV_DIR G:/workspace/AndroidStudioProjects/opencv-4.5.0-android-sdk/sdk/native/jni)
+set(OpenCV_DIR G:/workspace/AndroidStudioProjects/opencv-4.0.1-android-sdk/sdk/native/jni)
 set(CMAKE_VERBOSE_MAKEFILE on)
 
 find_package(OpenCV REQUIRED core stitching)
