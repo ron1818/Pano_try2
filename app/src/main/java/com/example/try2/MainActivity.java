@@ -143,19 +143,10 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         stitchBtn.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-                String fileName = "stitch/boat1.jpg";
-                File file = new File(path, fileName);
-                String img1 = file.toString();
-                fileName = "stitch/boat2.jpg";
-                file = new File(path, fileName);
-                String img2 = file.toString();
-                sp = new StitchProcess(img1, img2);
-                sp.Stitch();
-                pano.setImageBitmap(sp.Stitched);
-                // after stitch, display image
+                StitchOneByOne(v);
             }
         });
+
 
         // TextView ntxt = (TextView) findViewById(R.id.NativeTxt);
         // ntxt.setText(stringFromJNI());
@@ -175,6 +166,28 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
                 }
             }
         }); */
+    }
+
+    private int stitchIndex = 1;
+    private String img1, img2;
+    // when click, stitch one by one
+    private void StitchOneByOne(View v){
+        File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        String fileName = String.format("stitch/boat%d.jpg", stitchIndex);
+        File file = new File(path, fileName);
+        if (stitchIndex == 1) { // first image
+            img1 = file.toString();
+            sp = new StitchProcess(img1);
+            stitchIndex++;
+        }
+        else { // subsequence images, need to stitche one by one
+            img2 = file.toString();
+            sp.Stitch(img2);
+            stitchIndex++;
+        }
+        // after stitch, display image
+        pano.setImageBitmap(sp.Stitched);
+
     }
 
     /* private void showGray() {

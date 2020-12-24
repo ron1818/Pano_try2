@@ -50,6 +50,7 @@ Java_com_example_try2_ImageStitchNative_stitchMats(JNIEnv *env, jclass clazz, jl
     stitcher->setExposureCompensator(new detail::NoExposureCompensator());//exposure compensation
     stitcher->setBlender(new detail::FeatherBlender());
 
+    // vector<Mat> masks;
     Stitcher::Status state = stitcher->stitch(mats, finalMat);
     // Stitcher::Status state = stitcher.composePanorama(mats, finalMat);
 

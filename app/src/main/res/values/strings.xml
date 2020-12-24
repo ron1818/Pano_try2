@@ -3,5 +3,5 @@
     <string name="CaptureBtn">Capture</string>
     <string name="ToggleBtnOff">Record</string>
     <string name="ToggleBtnOn">Stop</string>
-    <string name="StitchBtn">Stitch 2</string>
+    <string name="StitchBtn">Stitch</string>
 </resources>
