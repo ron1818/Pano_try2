@@ -20,6 +20,12 @@ public class ImageStitchNative {
         System.loadLibrary("native-stitch2");
     }
 
+    private static long stitcherpointer;
+
+    /* static {
+        stitcherpointer = initStitcher();
+    } */
+
     public static void StitchImages(Mat img1, Mat img2, @NonNull onStitchResultListener listener) {
         // wh[0] status code, wh[1] bitmap width, wh[2] bitmap height
         int wh[] = stitchMats2(img1.getNativeObjAddr(), img2.getNativeObjAddr(), Stitched.getNativeObjAddr(), true);
@@ -56,6 +62,8 @@ public class ImageStitchNative {
     private native static int[] stitchMats2(long mat1, long mat2, long stitched, boolean isleft);
 
     private native static int getBitmap(Bitmap bitmap);
+
+    public native static int initStitcher();
 
 
 

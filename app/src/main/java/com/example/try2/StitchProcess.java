@@ -21,7 +21,7 @@ public class StitchProcess implements ImageStitchNative.onStitchResultListener {
     public boolean IsSuccess=true;
     public String Msg;
 
-    private double scaleFactor = 0.125;
+    private double scaleFactor = 0.25;
 
     public StitchProcess(String path1){
         Mat _mat1 = Imgcodecs.imread(path1);
@@ -34,6 +34,8 @@ public class StitchProcess implements ImageStitchNative.onStitchResultListener {
         //convert stitchedmat to stitched bitmatp
         Stitched = Bitmap.createBitmap(StitchedMat.cols(), StitchedMat.rows(),Bitmap.Config.ARGB_8888);
         org.opencv.android.Utils.matToBitmap(StitchedMat, Stitched);
+        // initialize stitcher
+        // ImageStitchNative.initStitcher();
     }
 
     public void Stitch(String path2){

@@ -24,11 +24,40 @@ char filepath1[100] = "/storage/emulated/0/panorama_stitched.jpg";
 
 
 Mat finalMat;
+// static Ptr<Stitcher> GStitcher;
+static Ptr<Stitcher> GStitcher;
+static Stitcher* pGStitcher2;
+static jarray b;
+static jclass stitcher_class = nullptr;
+
+extern "C"
+JNIEXPORT jint JNICALL
+Java_com_example_try2_ImageStitchNative_initStitcher(JNIEnv *env, jclass clazz) {
+    Stitcher::Mode mode = Stitcher::PANORAMA;
+    Ptr<Stitcher> stitcher = cv::Stitcher::create(mode);
+    cv::Mat m;
+
+    // _jobject s = (_jobject) stitcher.get();
+
+    // stitcher.setRegistrationResol(0.6);
+    // stitcher.setWaveCorrection(false);
+    /*=match_conf defaults to 0.65, I choose 0.8, if there is too much feature, there will be no feature points, and 0.8 will fail*/
+    detail::BestOf2NearestMatcher *matcher = new detail::BestOf2NearestMatcher(false, 0.25f);
+    stitcher->setFeaturesMatcher(matcher);
+    stitcher->setBundleAdjuster(new detail::BundleAdjusterRay());
+    stitcher->setSeamFinder(new detail::NoSeamFinder);
+    stitcher->setExposureCompensator(new detail::NoExposureCompensator());//exposure compensation
+    stitcher->setBlender(new detail::FeatherBlender());
+    // GStitcher2 = (Stitcher)env->NewGlobalRef((jobject) stitcher);
+    // GStitcher2 = *stitcher;
+    pGStitcher2 = (Stitcher*)env->NewGlobalRef((jobject) &stitcher);
+    return 0;
+}
 
 extern "C"
 JNIEXPORT jintArray JNICALL
 Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, jlong mat1,
-                                                    jlong mat2, jlong stitched, bool isleft) {
+                                                    jlong mat2, jlong stitched, jboolean isleft) {
     Mat* pm1 = (Mat*) mat1;
     Mat* pm2 = (Mat*) mat2;
     Mat* pstitched = (Mat*) stitched;
@@ -39,13 +68,15 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
     // mats.push_back(pm1->clone());
     // mats.push_back(pm2->clone());
 
+    // Ptr<Stitcher> stitcher = new Ptr<Stitcher>(pstitcher);
+
     Stitcher::Mode mode = Stitcher::PANORAMA;
     Ptr<Stitcher> stitcher = cv::Stitcher::create(mode);
 
-    //stitcher.setRegistrationResol(0.6);
+    stitcher->setRegistrationResol(0.6);
     // stitcher.setWaveCorrection(false);
-    /*=match_conf defaults to 0.65, I choose 0.8, if there is too much feature, there will be no feature points, and 0.8 will fail*/
-    detail::BestOf2NearestMatcher *matcher = new detail::BestOf2NearestMatcher(false, 0.5f);
+    // =match_conf defaults to 0.65, I choose 0.8, if there is too much feature, there will be no feature points, and 0.8 will fail
+    detail::BestOf2NearestMatcher *matcher = new detail::BestOf2NearestMatcher(false, 0.25f);
     stitcher->setFeaturesMatcher(matcher);
     stitcher->setBundleAdjuster(new detail::BundleAdjusterRay());
     stitcher->setSeamFinder(new detail::NoSeamFinder);
@@ -70,7 +101,10 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
     int roi1width = col2;
     // img1's ROI is same col size as img2's if longer
     if(col1>=(col2+offset)){
-        roi1col = col1-col2-offset;
+        if(isleft) // img1 is left to img2, open the ending window
+            roi1col = col1-col2-offset;
+        else // img1 is right to img2, open the starting window
+            roi1col = 0;
         roi1width = col2+offset;
     }
 
@@ -82,8 +116,9 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
     masks.push_back(mask1);
     masks.push_back(mask2);
 
-    // Stitcher::Status state = stitcher->stitch(mats, masks, *pstitched);
-    Stitcher::Status state = stitcher->stitch(mats, *pstitched);
+    // Stitcher::Status state = (&pstitcher)->stitch(mats, masks, *pstitched);
+    // Stitcher::Status state = (pGStitcher2)->stitch(mats, masks, *pstitched);
+    Stitcher::Status state = stitcher->stitch(mats, masks, *pstitched);
 
     LOGI ("splicing result: %d", state);
 //        finalMat = clipping(finalMat);
