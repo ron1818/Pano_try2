@@ -14,24 +14,26 @@ public class ImageStitchNative {
     public final static int ERR_HOMOGRAPHY_EST_FAIL = 2;
     public final static int ERR_CAMERA_PARAMS_ADJUST_FAIL = 3;
 
+    public static Mat Stitched = new Mat();
+
     static {
         System.loadLibrary("native-stitch2");
     }
 
     public static void StitchImages(Mat img1, Mat img2, @NonNull onStitchResultListener listener) {
         // wh[0] status code, wh[1] bitmap width, wh[2] bitmap height
-        int wh[] = stitchMats(img1.getNativeObjAddr(), img2.getNativeObjAddr());
+        int wh[] = stitchMats2(img1.getNativeObjAddr(), img2.getNativeObjAddr(), Stitched.getNativeObjAddr(), true);
         switch (wh[0]) {
             case OK: {
+
                 // empty bimap of the stitched image size
-                Bitmap bitmap = Bitmap.createBitmap(wh[1], wh[2], Bitmap.Config.ARGB_8888);
-                int result = getBitmap(bitmap);
-                if (result == OK && bitmap != null){
-                    listener.onSuccess(bitmap);
+                // Bitmap bitmap = Bitmap.createBitmap(wh[1], wh[2], Bitmap.Config.ARGB_8888);
+                boolean result = Stitched.size().width>0;
+                if (result && Stitched != null){
+                    listener.onSuccess(Stitched);
                 }else{
                     listener.onError("图片合成失败");
                 }
-                listener.onError("Success");
             }
             break;
             case ERR_NEED_MORE_IMGS: {
@@ -51,6 +53,7 @@ public class ImageStitchNative {
 
 
     private native static int[] stitchMats(long mat1, long mat2);
+    private native static int[] stitchMats2(long mat1, long mat2, long stitched, boolean isleft);
 
     private native static int getBitmap(Bitmap bitmap);
 
@@ -58,7 +61,8 @@ public class ImageStitchNative {
 
     public interface onStitchResultListener {
 
-        void onSuccess(Bitmap bitmap);
+        // void onSuccess(Bitmap bitmap);
+        void onSuccess(Mat mat);
 
         void onError(String errorMsg);
     }

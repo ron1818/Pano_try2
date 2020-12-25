@@ -186,7 +186,12 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
             stitchIndex++;
         }
         // after stitch, display image
-        pano.setImageBitmap(sp.Stitched);
+        if(sp.IsSuccess) {
+            pano.setImageBitmap(sp.Stitched);
+        }
+        else{
+            Toast.makeText(this, sp.Msg, Toast.LENGTH_SHORT).show();
+        }
 
     }
 

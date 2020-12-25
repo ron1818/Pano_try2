@@ -18,13 +18,18 @@ public class StitchProcess implements ImageStitchNative.onStitchResultListener {
 
     public Mat StitchedMat; // image always displayed
 
+    public boolean IsSuccess=true;
+    public String Msg;
+
+    private double scaleFactor = 0.125;
+
     public StitchProcess(String path1){
         Mat _mat1 = Imgcodecs.imread(path1);
         // Mat _mat2 = Imgcodecs.imread(path2);
         StitchedMat = new Mat();
         // mat2 = new Mat();
         // make mat1 and mat2 smaller
-        Imgproc.resize(_mat1, StitchedMat, new Size(0,0), 0.25, 0.25);
+        Imgproc.resize(_mat1, StitchedMat, new Size(0,0), scaleFactor, scaleFactor);
         // Imgproc.resize(_mat2, mat2, new Size(0,0), 0.25, 0.25);
         //convert stitchedmat to stitched bitmatp
         Stitched = Bitmap.createBitmap(StitchedMat.cols(), StitchedMat.rows(),Bitmap.Config.ARGB_8888);
@@ -36,23 +41,30 @@ public class StitchProcess implements ImageStitchNative.onStitchResultListener {
         Mat _mat2 = Imgcodecs.imread(path2);
         mat2 = new Mat();
         // make mat1 and mat2 smaller
-        Imgproc.resize(_mat2, mat2, new Size(0,0), 0.25, 0.25);
+        Imgproc.resize(_mat2, mat2, new Size(0,0), scaleFactor, scaleFactor);
 
         ImageStitchNative.StitchImages(StitchedMat, mat2, this);
     }
 
     @Override
-    public void onSuccess(Bitmap bitmap) {
-        Stitched = bitmap;
-        // convert Stitched to stitched mat
-        Mat _tmp = new Mat();
-        org.opencv.android.Utils.bitmapToMat(Stitched, _tmp);
-        Imgproc.cvtColor(_tmp, StitchedMat, Imgproc.COLOR_RGBA2BGR);
+    public void onSuccess(Mat mat) {
+        // public void onSuccess(Bitmap bitmap) {
+        StitchedMat = mat;
+        Stitched = Bitmap.createBitmap(StitchedMat.cols(), StitchedMat.rows(),Bitmap.Config.ARGB_8888);
+        // convert Stitched mat to stitched
+        org.opencv.android.Utils.matToBitmap(StitchedMat, Stitched);
+        // Mat _tmp = new Mat();
+        // org.opencv.android.Utils.bitmapToMat(Stitched, _tmp);
+        // Imgproc.cvtColor(_tmp, StitchedMat, Imgproc.COLOR_RGBA2BGR);
+        IsSuccess = true;
+        Msg = "Success";
 
     }
 
     @Override
     public void onError(String errorMsg) {
+        IsSuccess = false;
+        Msg = errorMsg;
 
     }
 }

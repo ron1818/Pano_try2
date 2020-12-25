@@ -25,6 +25,89 @@ char filepath1[100] = "/storage/emulated/0/panorama_stitched.jpg";
 
 Mat finalMat;
 
+extern "C"
+JNIEXPORT jintArray JNICALL
+Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, jlong mat1,
+                                                    jlong mat2, jlong stitched, bool isleft) {
+    Mat* pm1 = (Mat*) mat1;
+    Mat* pm2 = (Mat*) mat2;
+    Mat* pstitched = (Mat*) stitched;
+
+    vector<Mat> mats;
+    mats.push_back(*pm1);
+    mats.push_back(*pm2);
+    // mats.push_back(pm1->clone());
+    // mats.push_back(pm2->clone());
+
+    Stitcher::Mode mode = Stitcher::PANORAMA;
+    Ptr<Stitcher> stitcher = cv::Stitcher::create(mode);
+
+    //stitcher.setRegistrationResol(0.6);
+    // stitcher.setWaveCorrection(false);
+    /*=match_conf defaults to 0.65, I choose 0.8, if there is too much feature, there will be no feature points, and 0.8 will fail*/
+    detail::BestOf2NearestMatcher *matcher = new detail::BestOf2NearestMatcher(false, 0.5f);
+    stitcher->setFeaturesMatcher(matcher);
+    stitcher->setBundleAdjuster(new detail::BundleAdjusterRay());
+    stitcher->setSeamFinder(new detail::NoSeamFinder);
+    stitcher->setExposureCompensator(new detail::NoExposureCompensator());//exposure compensation
+    stitcher->setBlender(new detail::FeatherBlender());
+
+    // Stitcher::Status state = stitcher->stitch(mats, finalMat);
+    // Stitcher::Status state = stitcher.composePanorama(mats, finalMat);
+
+    vector<Mat> masks;
+    // get img1 and img2's size
+    int row1 = pm1->rows;
+    int row2 = pm2->rows;
+    int col1 = pm1->cols;
+    int col2 = pm2->cols;
+    int offset = 200;
+
+    // img1's mask is a left/right clear mask
+    Mat mask1 = Mat::zeros(row1, col1, CV_8UC1);
+
+    int roi1col = 0;
+    int roi1width = col2;
+    // img1's ROI is same col size as img2's if longer
+    if(col1>=(col2+offset)){
+        roi1col = col1-col2-offset;
+        roi1width = col2+offset;
+    }
+
+    Rect roi = Rect(roi1col, 0, roi1width, row1);
+    mask1(roi).setTo(1);
+
+    // img2's mask is a full clear mask
+    Mat mask2 = Mat::ones(row2, col2, CV_8UC1);
+    masks.push_back(mask1);
+    masks.push_back(mask2);
+
+    // Stitcher::Status state = stitcher->stitch(mats, masks, *pstitched);
+    Stitcher::Status state = stitcher->stitch(mats, *pstitched);
+
+    LOGI ("splicing result: %d", state);
+//        finalMat = clipping(finalMat);
+    jintArray jint_arr = env->NewIntArray(3);
+    jint *elems = env->GetIntArrayElements(jint_arr, NULL);
+    elems[0] = state;//status code
+    elems[1] = finalMat.cols;//wide
+    elems[2] = finalMat.rows;//high
+
+    if (state == Stitcher::OK){
+        LOGI ("splicing success: OK");
+    }else{
+        LOGI ("splicing failure: fail code %d", state);
+    }
+    //Synchronize
+    env->ReleaseIntArrayElements(jint_arr, elems, 0);
+
+    mask1.release();
+    mask2.release();
+//    bool isSave  = cv::imwrite(filepath1, finalMat);
+    // LOGI ("whether it is stored successfully: %d", isSave);
+    return jint_arr;
+}
+
 
 extern "C"
 JNIEXPORT jintArray JNICALL
