@@ -23,12 +23,16 @@ using namespace std;
 char filepath1[100] = "/storage/emulated/0/panorama_stitched.jpg";
 
 
+class StitchC{
+public:
+    Ptr<Stitcher> Stitcher;
+    bool Success;
+};
+
+
 Mat finalMat;
-// static Ptr<Stitcher> GStitcher;
-static Ptr<Stitcher> GStitcher;
-static Stitcher* pGStitcher2;
-static jarray b;
-static jclass stitcher_class = nullptr;
+
+StitchC GStitcher;
 
 extern "C"
 JNIEXPORT jint JNICALL
@@ -37,7 +41,6 @@ Java_com_example_try2_ImageStitchNative_initStitcher(JNIEnv *env, jclass clazz) 
     Ptr<Stitcher> stitcher = cv::Stitcher::create(mode);
     cv::Mat m;
 
-    // _jobject s = (_jobject) stitcher.get();
 
     // stitcher.setRegistrationResol(0.6);
     // stitcher.setWaveCorrection(false);
@@ -48,9 +51,11 @@ Java_com_example_try2_ImageStitchNative_initStitcher(JNIEnv *env, jclass clazz) 
     stitcher->setSeamFinder(new detail::NoSeamFinder);
     stitcher->setExposureCompensator(new detail::NoExposureCompensator());//exposure compensation
     stitcher->setBlender(new detail::FeatherBlender());
-    // GStitcher2 = (Stitcher)env->NewGlobalRef((jobject) stitcher);
-    // GStitcher2 = *stitcher;
-    pGStitcher2 = (Stitcher*)env->NewGlobalRef((jobject) &stitcher);
+
+    StitchC s;
+    s.Stitcher = stitcher;
+    s.Success = false;
+    GStitcher = s;
     return 0;
 }
 
@@ -82,9 +87,6 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
     stitcher->setSeamFinder(new detail::NoSeamFinder);
     stitcher->setExposureCompensator(new detail::NoExposureCompensator());//exposure compensation
     stitcher->setBlender(new detail::FeatherBlender());
-
-    // Stitcher::Status state = stitcher->stitch(mats, finalMat);
-    // Stitcher::Status state = stitcher.composePanorama(mats, finalMat);
 
     vector<Mat> masks;
     // get img1 and img2's size

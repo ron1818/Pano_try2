@@ -6,6 +6,8 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
+
+
     <LinearLayout
         android:id="@+id/gridLayout"
         android:layout_width="match_parent"
@@ -13,11 +15,33 @@
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent" >
 
-        <Button
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/CameraBtn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            app:icon="@drawable/ic_baseline_camera_24"
+            app:iconSize="24dp"
+            app:iconPadding="0dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Rounded" />
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/CaptureBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/CaptureBtn" />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            style="@style/Widget.MaterialComponents.Button.Icon"
+            app:icon="@drawable/ic_baseline_camera_roll_24"
+            app:iconSize="24dp"
+            app:iconPadding="0dp"
+            android:insetLeft="0dp"
+            android:insetTop="0dp"
+            android:insetRight="0dp"
+            android:insetBottom="0dp"
+            app:shapeAppearanceOverlay="@style/ShapeAppearanceOverlay.MyApp.Button.Rounded" />
 
         <ToggleButton
             android:id="@+id/RecordBtn"

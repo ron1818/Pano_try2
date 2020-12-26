@@ -25,27 +25,37 @@ public class StitchProcess implements ImageStitchNative.onStitchResultListener {
 
     public StitchProcess(String path1){
         Mat _mat1 = Imgcodecs.imread(path1);
-        // Mat _mat2 = Imgcodecs.imread(path2);
+        loadFirstImage(_mat1);
+    }
+
+    public StitchProcess(Mat mat){
+        loadFirstImage(mat);
+    }
+
+    private void loadFirstImage(Mat mat){
         StitchedMat = new Mat();
         // mat2 = new Mat();
         // make mat1 and mat2 smaller
-        Imgproc.resize(_mat1, StitchedMat, new Size(0,0), scaleFactor, scaleFactor);
+        Imgproc.resize(mat, StitchedMat, new Size(0,0), scaleFactor, scaleFactor);
         // Imgproc.resize(_mat2, mat2, new Size(0,0), 0.25, 0.25);
         //convert stitchedmat to stitched bitmatp
         Stitched = Bitmap.createBitmap(StitchedMat.cols(), StitchedMat.rows(),Bitmap.Config.ARGB_8888);
         org.opencv.android.Utils.matToBitmap(StitchedMat, Stitched);
-        // initialize stitcher
-        // ImageStitchNative.initStitcher();
     }
 
     public void Stitch(String path2){
         // String[] s = {p1, p2};
         Mat _mat2 = Imgcodecs.imread(path2);
+        Stitch(_mat2);
+    }
+
+    public void Stitch(Mat mat){
         mat2 = new Mat();
         // make mat1 and mat2 smaller
-        Imgproc.resize(_mat2, mat2, new Size(0,0), scaleFactor, scaleFactor);
+        Imgproc.resize(mat, mat2, new Size(0,0), scaleFactor, scaleFactor);
 
         ImageStitchNative.StitchImages(StitchedMat, mat2, this);
+
     }
 
     @Override

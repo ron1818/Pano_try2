@@ -50,7 +50,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     private MenuItem[] mResolutionMenuItems;
     private SubMenu mResolutionMenu;
 
-    private Button captureBtn;
+    private Button captureBtn, snapshotBtn;
     private ToggleButton recordBtn;
     private Button stitchBtn;
 
@@ -125,6 +125,17 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
             }
         });
 
+        // create snapshot button, will be removed
+        snapshotBtn = (Button) findViewById(R.id.CameraBtn);
+        snapshotBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onSnapShot(v);
+                // counter ++;
+                // t.setText(String.valueOf(counter));
+            }
+        });
+
         // create record button
         recordBtn = (ToggleButton) findViewById(R.id.RecordBtn);
         recordBtn.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -167,6 +178,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
             }
         }); */
     }
+
 
     private int stitchIndex = 1;
     private String img1, img2;
@@ -387,6 +399,28 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         mOpenCvCameraView.takePicture(fileName);
         Toast.makeText(this, fileName + " saved", Toast.LENGTH_SHORT).show();
         return false;
+    }
+
+
+    // use img_rgba to stitch image
+    private void onSnapShot(View v) {
+        Mat img = Utils.Rot90(Utils.ConvRgba2Bgr(img_rgba));
+
+        if (stitchIndex == 1) { // first image
+            sp = new StitchProcess(img);
+            stitchIndex++;
+        }
+        else { // subsequence images, need to stitche one by one
+            sp.Stitch(img);
+            stitchIndex++;
+        }
+        // after stitch, display image
+        if(sp.IsSuccess) {
+            pano.setImageBitmap(sp.Stitched);
+        }
+        else{
+            Toast.makeText(this, sp.Msg, Toast.LENGTH_SHORT).show();
+        }
     }
 }
 

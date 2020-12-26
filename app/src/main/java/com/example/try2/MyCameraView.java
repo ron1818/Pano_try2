@@ -79,8 +79,7 @@ public class MyCameraView extends JavaCameraView implements Camera.PictureCallba
         // Write the image in a file (in jpeg format)
         try {
             // rotate 90 clockwise then save image
-            Mat rot = new Mat();
-            Core.rotate(colored, rot, Core.ROTATE_90_CLOCKWISE);
+            Mat rot = Utils.Rot90(colored);
 
             Imgcodecs.imwrite(mPictureFileName, rot);
             // FileOutputStream fos = new FileOutputStream(mPictureFileName);
