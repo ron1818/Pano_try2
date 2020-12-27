@@ -127,8 +127,8 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
     jintArray jint_arr = env->NewIntArray(3);
     jint *elems = env->GetIntArrayElements(jint_arr, NULL);
     elems[0] = state;//status code
-    elems[1] = finalMat.cols;//wide
-    elems[2] = finalMat.rows;//high
+    elems[1] = (*pstitched).cols;//wide
+    elems[2] = (*pstitched).rows;//high
 
     if (state == Stitcher::OK){
         LOGI ("splicing success: OK");
