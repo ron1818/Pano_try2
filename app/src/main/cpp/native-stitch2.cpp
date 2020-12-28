@@ -62,10 +62,12 @@ Java_com_example_try2_ImageStitchNative_initStitcher(JNIEnv *env, jclass clazz) 
 extern "C"
 JNIEXPORT jintArray JNICALL
 Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, jlong mat1,
-                                                    jlong mat2, jlong stitched, jboolean isleft) {
+                                                    jlong mat2, jlong stitched, jlong masked1, jlong masked2, jboolean isleft) {
     Mat* pm1 = (Mat*) mat1;
     Mat* pm2 = (Mat*) mat2;
     Mat* pstitched = (Mat*) stitched;
+    Mat* pmasked1 = (Mat*) masked1;
+    Mat* pmasked2 = (Mat*) masked2;
 
     vector<Mat> mats;
     mats.push_back(*pm1);
@@ -94,7 +96,8 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
     int row2 = pm2->rows;
     int col1 = pm1->cols;
     int col2 = pm2->cols;
-    int offset = 200;
+    int offset = 0;
+    // int offset = 200;
 
     // img1's mask is a left/right clear mask
     Mat mask1 = Mat::zeros(row1, col1, CV_8UC1);
@@ -117,6 +120,10 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
     Mat mask2 = Mat::ones(row2, col2, CV_8UC1);
     masks.push_back(mask1);
     masks.push_back(mask2);
+
+    // get masked image 1 and 2
+    pm1->copyTo(*pmasked1, mask1);
+    pm2->copyTo(*pmasked2, mask2);
 
     // Stitcher::Status state = (&pstitcher)->stitch(mats, masks, *pstitched);
     // Stitcher::Status state = (pGStitcher2)->stitch(mats, masks, *pstitched);

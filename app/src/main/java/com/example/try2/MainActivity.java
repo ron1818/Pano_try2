@@ -55,6 +55,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     private Button stitchBtn;
 
     private ImageView arrow, pano;
+    private ImageView imgV1, imgV2;
     private TextView amplitudeTxt;
 
     private Mat img_rgba, img_bgr;
@@ -150,6 +151,9 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
         pano = (ImageView) findViewById(R.id.PanoImageView);
 
+        imgV1 = (ImageView) findViewById(R.id.Img1);
+        imgV2 = (ImageView) findViewById(R.id.Img2);
+
         stitchBtn = (Button) findViewById(R.id.StitchBtn);
         stitchBtn.setOnClickListener(new View.OnClickListener(){
             @Override
@@ -200,6 +204,8 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         // after stitch, display image
         if(sp.IsSuccess) {
             pano.setImageBitmap(sp.Stitched);
+            imgV1.setImageBitmap(sp.Img1);
+            imgV2.setImageBitmap(sp.Img2);
         }
         else{
             Toast.makeText(this, sp.Msg, Toast.LENGTH_SHORT).show();
@@ -417,6 +423,8 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         // after stitch, display image
         if(sp.IsSuccess) {
             pano.setImageBitmap(sp.Stitched);
+            imgV1.setImageBitmap(sp.Img1);
+            imgV2.setImageBitmap(sp.Img2);
         }
         else{
             Toast.makeText(this, sp.Msg, Toast.LENGTH_SHORT).show();

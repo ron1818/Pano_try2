@@ -73,7 +73,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:background="@color/black"
+        android:background="@color/gray_600"
         android:alpha="0.5"
         android:scaleType="fitStart"
         android:padding="1dp"
@@ -82,5 +82,30 @@
         android:layout_height="100dp"
         app:layout_constraintBottom_toTopOf="@+id/gridLayout"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:background="@color/light_blue_600"
+        android:id="@+id/Img1"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:padding="1dp"
+        android:alpha="0.8"
+        android:scaleType="fitStart"
+        app:layout_constraintBottom_toTopOf="@+id/PanoImageView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/myCameraView" />
+
+    <ImageView
+        android:background="@color/light_blue_600"
+        android:id="@+id/Img2"
+        android:layout_width="150dp"
+        android:layout_height="100dp"
+        android:padding="1dp"
+        android:alpha="0.8"
+        android:scaleType="fitStart"
+        app:layout_constraintBottom_toTopOf="@+id/gridLayout"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/PanoImageView" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

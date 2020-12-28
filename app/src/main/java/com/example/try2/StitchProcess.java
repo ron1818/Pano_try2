@@ -12,11 +12,13 @@ import org.opencv.imgproc.Imgproc;
 
 public class StitchProcess implements ImageStitchNative.onStitchResultListener {
     private Mat mat1, mat2;
+    private Mat mask1, mask2;
     private String p1, p2;
 
     public Bitmap Stitched;
 
     public Mat StitchedMat; // image always displayed
+    public Bitmap Img1, Img2;
 
     public boolean IsSuccess=true;
     public String Msg;
@@ -41,6 +43,7 @@ public class StitchProcess implements ImageStitchNative.onStitchResultListener {
         //convert stitchedmat to stitched bitmatp
         Stitched = Bitmap.createBitmap(StitchedMat.cols(), StitchedMat.rows(),Bitmap.Config.ARGB_8888);
         org.opencv.android.Utils.matToBitmap(StitchedMat, Stitched);
+        Img1 = Stitched;
     }
 
     public void Stitch(String path2){
@@ -55,6 +58,14 @@ public class StitchProcess implements ImageStitchNative.onStitchResultListener {
         Imgproc.resize(mat, mat2, new Size(0,0), scaleFactor, scaleFactor);
 
         ImageStitchNative.StitchImages(StitchedMat, mat2, this);
+
+        // show masked image
+        mask1 = ImageStitchNative.Img1;
+        mask2 = ImageStitchNative.Img2;
+        Img1 = Bitmap.createBitmap(mask1.cols(), mask1.rows(),Bitmap.Config.ARGB_8888);
+        org.opencv.android.Utils.matToBitmap(mask1, Img1);
+        Img2 = Bitmap.createBitmap(mask2.cols(), mask2.rows(),Bitmap.Config.ARGB_8888);
+        org.opencv.android.Utils.matToBitmap(mask2, Img2);
 
     }
 

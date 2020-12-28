@@ -15,6 +15,8 @@ public class ImageStitchNative {
     public final static int ERR_CAMERA_PARAMS_ADJUST_FAIL = 3;
 
     public static Mat Stitched = new Mat();
+    public static Mat Img1 = new Mat();
+    public static Mat Img2 = new Mat();
 
     static {
         System.loadLibrary("native-stitch2");
@@ -28,7 +30,7 @@ public class ImageStitchNative {
 
     public static void StitchImages(Mat img1, Mat img2, @NonNull onStitchResultListener listener) {
         // wh[0] status code, wh[1] bitmap width, wh[2] bitmap height
-        int wh[] = stitchMats2(img1.getNativeObjAddr(), img2.getNativeObjAddr(), Stitched.getNativeObjAddr(), true);
+        int wh[] = stitchMats2(img1.getNativeObjAddr(), img2.getNativeObjAddr(), Stitched.getNativeObjAddr(), Img1.getNativeObjAddr(), Img2.getNativeObjAddr(), true);
         switch (wh[0]) {
             case OK: {
 
@@ -59,7 +61,7 @@ public class ImageStitchNative {
 
 
     private native static int[] stitchMats(long mat1, long mat2);
-    private native static int[] stitchMats2(long mat1, long mat2, long stitched, boolean isleft);
+    private native static int[] stitchMats2(long mat1, long mat2, long stitched, long mask1, long mask2, boolean isleft);
 
     private native static int getBitmap(Bitmap bitmap);
 
