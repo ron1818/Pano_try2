@@ -67,7 +67,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
     private Bitmap bitmap;
 
-    static{
+    static {
         System.loadLibrary("native-lib");
         System.loadLibrary("opencv_java4");
     }
@@ -92,6 +92,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
 
     private native String stringFromJNI();
+
     public native int[] gray(int[] pixels, int w, int h);
 
     public MainActivity() {
@@ -155,7 +156,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         imgV2 = (ImageView) findViewById(R.id.Img2);
 
         stitchBtn = (Button) findViewById(R.id.StitchBtn);
-        stitchBtn.setOnClickListener(new View.OnClickListener(){
+        stitchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 StitchOneByOne(v);
@@ -186,8 +187,9 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
     private int stitchIndex = 1;
     private String img1, img2;
+
     // when click, stitch one by one
-    private void StitchOneByOne(View v){
+    private void StitchOneByOne(View v) {
         File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         String fileName = String.format("stitch/boat%d.jpg", stitchIndex);
         File file = new File(path, fileName);
@@ -195,19 +197,17 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
             img1 = file.toString();
             sp = new StitchProcess(img1);
             stitchIndex++;
-        }
-        else { // subsequence images, need to stitche one by one
+        } else { // subsequence images, need to stitche one by one
             img2 = file.toString();
             sp.Stitch(img2);
             stitchIndex++;
         }
         // after stitch, display image
-        if(sp.IsSuccess) {
+        if (sp.IsSuccess) {
             pano.setImageBitmap(sp.Stitched);
             imgV1.setImageBitmap(sp.Img1);
             imgV2.setImageBitmap(sp.Img2);
-        }
-        else{
+        } else {
             Toast.makeText(this, sp.Msg, Toast.LENGTH_SHORT).show();
         }
 
@@ -280,7 +280,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     }
 
     private OpticalFlowProcess oflk;
-    private int ofAmplitudeThreshold = 100;  // larger than 100px movement, create new frame
+    private int ofAmplitudeThreshold = 50;  // larger than 100px movement, create new frame
     private double ofAngleThreshold = 0.17; // within 1.4, -1.4, create new frame
     private double angleStandard = Math.PI / 2.0;  // angle standard
     private StitchOrientation cameraDir = StitchOrientation.Undetermined; // realtime camera direction
@@ -299,6 +299,9 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
                     oflk.GFTT(inputFrame.gray());
                     // to capture new frame
                     isFirstCaptured = true;
+                    // initialize stitcher
+                    onSnapShotUI();
+
                 } else { // first captured, gftt calculated, need to calculate optical flow
                     oflk.OFLK(inputFrame.gray());
 
@@ -310,28 +313,43 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
                     else  // camera is not moving horizontally
                         cameraDir = StitchOrientation.Undetermined;
 
-                    // check if amplitude,rotation larger than threshold
-                    if (oflk.amplitude > ofAmplitudeThreshold*oflk.scaleFactor)
-                        switch (cameraDir) {
-                            case Left:
-                                break;
-                            case Right:
-                                break;
-                            default:
+                    // check if amplitude, rotation larger than threshold, it is a good image to stitch
+                    if (oflk.amplitude > ofAmplitudeThreshold * oflk.scaleFactor) {
+                        // get principle pano direction
+                        boolean res = determinePanoDirection(cameraDir);
+                        if (res) { // if success to get a new frame
+                            // reset old frame
+                            isFirstCaptured = false;
+                            // stitch
+                            onSnapShotUI();
                         }
-
-                    // reset old frame TODO: need to start stitching
-                    isFirstCaptured = false;
+                    }
                 }
                 // rotate arrow
                 rotateArrow(oflk.orientation, oflk.amplitude);
             }
+        } else { // not recording
+            // reset stitch index
+            stitchIndex = 1;
+            // if stitch has image, finish stitching
+            if(sp != null) {
+                if (sp.StitchedMat != null) {// finish stitching function
+                }
+            }
+            // if no image in the stitch, just continue
         }
         counter++;
 
         img_rgba = inputFrame.rgba();
         // String size = String.format("Image Size: %d * %d", img_rgba.height(), img_rgba.width());
         return inputFrame.rgba();
+    }
+
+    private boolean determinePanoDirection(StitchOrientation d) {
+        if (panoDir == StitchOrientation.Undetermined) { // not yet determined
+            panoDir = d;
+            return true;
+        } else return panoDir == d;
     }
 
     private void rotateArrow(double orientation, double amplitude) {
@@ -410,25 +428,37 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
     // use img_rgba to stitch image
     private void onSnapShot(View v) {
+        onSnapShot();
+    }
+
+    private void onSnapShotUI() {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                onSnapShot();
+            }
+        });
+    }
+
+    private void onSnapShot() {
         Mat img = Utils.Rot90(Utils.ConvRgba2Bgr(img_rgba));
 
         if (stitchIndex == 1) { // first image
             sp = new StitchProcess(img);
             stitchIndex++;
-        }
-        else { // subsequence images, need to stitche one by one
+        } else { // subsequence images, need to stitche one by one
             sp.Stitch(img);
             stitchIndex++;
         }
         // after stitch, display image
-        if(sp.IsSuccess) {
+        if (sp.IsSuccess) {
             pano.setImageBitmap(sp.Stitched);
             imgV1.setImageBitmap(sp.Img1);
             imgV2.setImageBitmap(sp.Img2);
-        }
-        else{
+        } else {
             Toast.makeText(this, sp.Msg, Toast.LENGTH_SHORT).show();
         }
+
     }
 }
 

@@ -45,10 +45,12 @@
 
         <ToggleButton
             android:id="@+id/RecordBtn"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textOff="@string/ToggleBtnOff"
-            android:textOn="@string/ToggleBtnOn" />
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@drawable/toggle_selector"
+            android:textOff=""
+            android:textOn=""
+            />
         <Button
             android:id="@+id/StitchBtn"
             android:text="@string/StitchBtn"

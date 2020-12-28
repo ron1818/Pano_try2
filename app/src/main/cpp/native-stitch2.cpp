@@ -81,7 +81,7 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
     Ptr<Stitcher> stitcher = cv::Stitcher::create(mode);
 
     stitcher->setRegistrationResol(0.6);
-    // stitcher.setWaveCorrection(false);
+    stitcher.setWaveCorrection(false);
     // =match_conf defaults to 0.65, I choose 0.8, if there is too much feature, there will be no feature points, and 0.8 will fail
     detail::BestOf2NearestMatcher *matcher = new detail::BestOf2NearestMatcher(false, 0.25f);
     stitcher->setFeaturesMatcher(matcher);
@@ -103,14 +103,14 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
     Mat mask1 = Mat::zeros(row1, col1, CV_8UC1);
 
     int roi1col = 0;
-    int roi1width = col2;
+    int roi1width = col1;
     // img1's ROI is same col size as img2's if longer
     if(col1>=(col2+offset)){
         if(isleft) // img1 is left to img2, open the ending window
-            roi1col = col1-col2-offset;
+            roi1col = col1 - col2 - offset;
         else // img1 is right to img2, open the starting window
             roi1col = 0;
-        roi1width = col2+offset;
+        roi1width = col2 + offset;
     }
 
     Rect roi = Rect(roi1col, 0, roi1width, row1);
