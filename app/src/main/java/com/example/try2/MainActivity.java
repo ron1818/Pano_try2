@@ -280,9 +280,9 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
     }
 
     private OpticalFlowProcess oflk;
-    private int ofAmplitudeThreshold = 50;  // larger than 100px movement, create new frame
-    private double ofAngleThreshold = 0.17; // within 1.4, -1.4, create new frame
-    private double angleStandard = Math.PI / 2.0;  // angle standard
+    private final int ofAmplitudeThreshold = 50;  // larger than 50px movement, create new frame
+    private final double ofAngleThreshold = 0.17; // within 1.4, -1.4, create new frame
+    private final double angleStandard = Math.PI / 2.0;  // angle standard 0.5Pi
     private StitchOrientation cameraDir = StitchOrientation.Undetermined; // realtime camera direction
     private StitchOrientation panoDir = StitchOrientation.Undetermined; // within one start/stop, can only stitch one direction
 
@@ -300,7 +300,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
                     // to capture new frame
                     isFirstCaptured = true;
                     // initialize stitcher
-                    onSnapShotUI();
+                    onSnapShotUI("First Image");
 
                 } else { // first captured, gftt calculated, need to calculate optical flow
                     oflk.OFLK(inputFrame.gray());
@@ -316,12 +316,12 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
                     // check if amplitude, rotation larger than threshold, it is a good image to stitch
                     if (oflk.amplitude > ofAmplitudeThreshold * oflk.scaleFactor) {
                         // get principle pano direction
-                        boolean res = determinePanoDirection(cameraDir);
-                        if (res) { // if success to get a new frame
+                        String res = determinePanoDirection(cameraDir);
+                        if (!res.contains("wrong")) { // if success to get a new frame
                             // reset old frame
                             isFirstCaptured = false;
                             // stitch
-                            onSnapShotUI();
+                            onSnapShotUI(res);
                         }
                     }
                 }
@@ -345,11 +345,15 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         return inputFrame.rgba();
     }
 
-    private boolean determinePanoDirection(StitchOrientation d) {
+    private String determinePanoDirection(StitchOrientation d) {
         if (panoDir == StitchOrientation.Undetermined) { // not yet determined
             panoDir = d;
-            return true;
-        } else return panoDir == d;
+            return "Direction is: "+d.toString();
+        } else if(panoDir == d){
+            return "Direction is same";
+        } else{
+            return "Direction wrong";
+        }
     }
 
     private void rotateArrow(double orientation, double amplitude) {
@@ -431,11 +435,12 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
         onSnapShot();
     }
 
-    private void onSnapShotUI() {
+    private void onSnapShotUI(String res) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 onSnapShot();
+                Toast.makeText(MainActivity.this, res, Toast.LENGTH_SHORT).show();
             }
         });
     }

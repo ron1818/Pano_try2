@@ -23,6 +23,7 @@ using namespace std;
 char filepath1[100] = "/storage/emulated/0/panorama_stitched.jpg";
 
 
+/* NOT WORKING */
 class StitchC{
 public:
     Ptr<Stitcher> Stitcher;
@@ -32,30 +33,40 @@ public:
 
 Mat finalMat;
 
-StitchC GStitcher;
+StitchC PreviewStitcher;
 
 extern "C"
 JNIEXPORT jint JNICALL
 Java_com_example_try2_ImageStitchNative_initStitcher(JNIEnv *env, jclass clazz) {
     Stitcher::Mode mode = Stitcher::PANORAMA;
     Ptr<Stitcher> stitcher = cv::Stitcher::create(mode);
-    cv::Mat m;
 
-
-    // stitcher.setRegistrationResol(0.6);
-    // stitcher.setWaveCorrection(false);
-    /*=match_conf defaults to 0.65, I choose 0.8, if there is too much feature, there will be no feature points, and 0.8 will fail*/
+    stitcher->setRegistrationResol(0.6);
+    stitcher->setWaveCorrection(false);
+    // =match_conf defaults to 0.65, I choose 0.8, if there is too much feature, there will be no feature points, and 0.8 will fail
     detail::BestOf2NearestMatcher *matcher = new detail::BestOf2NearestMatcher(false, 0.25f);
     stitcher->setFeaturesMatcher(matcher);
-    stitcher->setBundleAdjuster(new detail::BundleAdjusterRay());
+    stitcher->setEstimator(new detail::HomographyBasedEstimator());
+    Ptr<detail::BundleAdjusterBase> adjuster;
+    adjuster = makePtr<detail::BundleAdjusterRay>();
+    adjuster->setConfThresh(0.3);
+    Mat_<uchar> refine_mask = Mat::zeros(3, 3, CV_8U);
+    refine_mask(0,0) = 1;
+    refine_mask(0,1) = 1;
+    refine_mask(0,2) = 1;
+    refine_mask(1,1) = 1;
+    refine_mask(1,2) = 1;
+    adjuster->setRefinementMask(refine_mask);
+    stitcher->setBundleAdjuster(adjuster);
     stitcher->setSeamFinder(new detail::NoSeamFinder);
     stitcher->setExposureCompensator(new detail::NoExposureCompensator());//exposure compensation
-    stitcher->setBlender(new detail::FeatherBlender());
+    // stitcher->setBlender(new detail::FeatherBlender());
+    stitcher->setBlender(new detail::MultiBandBlender());
 
     StitchC s;
     s.Stitcher = stitcher;
     s.Success = false;
-    GStitcher = s;
+    PreviewStitcher = s;
     return 0;
 }
 
@@ -77,18 +88,29 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
 
     // Ptr<Stitcher> stitcher = new Ptr<Stitcher>(pstitcher);
 
-    Stitcher::Mode mode = Stitcher::PANORAMA;
+    /* Stitcher::Mode mode = Stitcher::PANORAMA;
     Ptr<Stitcher> stitcher = cv::Stitcher::create(mode);
 
     stitcher->setRegistrationResol(0.6);
-    stitcher.setWaveCorrection(false);
+    stitcher->setWaveCorrection(false);
     // =match_conf defaults to 0.65, I choose 0.8, if there is too much feature, there will be no feature points, and 0.8 will fail
     detail::BestOf2NearestMatcher *matcher = new detail::BestOf2NearestMatcher(false, 0.25f);
     stitcher->setFeaturesMatcher(matcher);
-    stitcher->setBundleAdjuster(new detail::BundleAdjusterRay());
+    stitcher->setEstimator(new detail::HomographyBasedEstimator());
+    Ptr<detail::BundleAdjusterBase> adjuster;
+        adjuster = makePtr<detail::BundleAdjusterRay>();
+    adjuster->setConfThresh(0.3);
+    Mat_<uchar> refine_mask = Mat::zeros(3, 3, CV_8U);
+    refine_mask(0,0) = 1;
+    refine_mask(0,1) = 1;
+    refine_mask(0,2) = 1;
+    refine_mask(1,1) = 1;
+    refine_mask(1,2) = 1;
+    adjuster->setRefinementMask(refine_mask);
+    stitcher->setBundleAdjuster(adjuster);
     stitcher->setSeamFinder(new detail::NoSeamFinder);
     stitcher->setExposureCompensator(new detail::NoExposureCompensator());//exposure compensation
-    stitcher->setBlender(new detail::FeatherBlender());
+    stitcher->setBlender(new detail::FeatherBlender()); */
 
     vector<Mat> masks;
     // get img1 and img2's size
@@ -127,7 +149,8 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
 
     // Stitcher::Status state = (&pstitcher)->stitch(mats, masks, *pstitched);
     // Stitcher::Status state = (pGStitcher2)->stitch(mats, masks, *pstitched);
-    Stitcher::Status state = stitcher->stitch(mats, masks, *pstitched);
+    // Stitcher::Status state = stitcher->stitch(mats, masks, *pstitched);
+    Stitcher::Status state = PreviewStitcher.Stitcher->stitch(mats, masks, *pstitched);
 
     LOGI ("splicing result: %d", state);
 //        finalMat = clipping(finalMat);

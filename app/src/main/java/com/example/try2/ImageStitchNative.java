@@ -24,9 +24,9 @@ public class ImageStitchNative {
 
     private static long stitcherpointer;
 
-    /* static {
+    static {
         stitcherpointer = initStitcher();
-    } */
+    }
 
     public static void StitchImages(Mat img1, Mat img2, @NonNull onStitchResultListener listener) {
         // wh[0] status code, wh[1] bitmap width, wh[2] bitmap height
