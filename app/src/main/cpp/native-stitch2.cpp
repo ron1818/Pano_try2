@@ -150,7 +150,8 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
     // Stitcher::Status state = (&pstitcher)->stitch(mats, masks, *pstitched);
     // Stitcher::Status state = (pGStitcher2)->stitch(mats, masks, *pstitched);
     // Stitcher::Status state = stitcher->stitch(mats, masks, *pstitched);
-    Stitcher::Status state = PreviewStitcher.Stitcher->stitch(mats, masks, *pstitched);
+    // Stitcher::Status state = PreviewStitcher.Stitcher->stitch(mats, masks, *pstitched);
+    Stitcher::Status state = PreviewStitcher.Stitcher->stitch(mats, *pstitched);
 
     LOGI ("splicing result: %d", state);
 //        finalMat = clipping(finalMat);

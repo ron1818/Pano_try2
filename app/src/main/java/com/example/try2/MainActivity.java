@@ -232,6 +232,8 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
 
     private void onStartStopVideo(CompoundButton buttonView, boolean isChecked) {
         isRecording = isChecked;
+        // reset stitch index
+        stitchIndex = 1;
     }
 
     @Override
@@ -329,8 +331,6 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
                 rotateArrow(oflk.orientation, oflk.amplitude);
             }
         } else { // not recording
-            // reset stitch index
-            stitchIndex = 1;
             // if stitch has image, finish stitching
             if(sp != null) {
                 if (sp.StitchedMat != null) {// finish stitching function
