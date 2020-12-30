@@ -43,8 +43,10 @@ Java_com_example_try2_ImageStitchNative_initStitcher(JNIEnv *env, jclass clazz) 
 
     stitcher->setRegistrationResol(0.6);
     stitcher->setWaveCorrection(false);
+    // stitcher->setWarper(new detail::CylindricalWarper(0.5f));
     // =match_conf defaults to 0.65, I choose 0.8, if there is too much feature, there will be no feature points, and 0.8 will fail
-    detail::BestOf2NearestMatcher *matcher = new detail::BestOf2NearestMatcher(false, 0.25f);
+    // detail::BestOf2NearestMatcher *matcher = new detail::BestOf2NearestMatcher(false, 0.25f);
+    detail::BestOf2NearestMatcher *matcher = new detail::BestOf2NearestRangeMatcher(3, false, 0.25f);
     stitcher->setFeaturesMatcher(matcher);
     stitcher->setEstimator(new detail::HomographyBasedEstimator());
     Ptr<detail::BundleAdjusterBase> adjuster;
@@ -83,34 +85,6 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
     vector<Mat> mats;
     mats.push_back(*pm1);
     mats.push_back(*pm2);
-    // mats.push_back(pm1->clone());
-    // mats.push_back(pm2->clone());
-
-    // Ptr<Stitcher> stitcher = new Ptr<Stitcher>(pstitcher);
-
-    /* Stitcher::Mode mode = Stitcher::PANORAMA;
-    Ptr<Stitcher> stitcher = cv::Stitcher::create(mode);
-
-    stitcher->setRegistrationResol(0.6);
-    stitcher->setWaveCorrection(false);
-    // =match_conf defaults to 0.65, I choose 0.8, if there is too much feature, there will be no feature points, and 0.8 will fail
-    detail::BestOf2NearestMatcher *matcher = new detail::BestOf2NearestMatcher(false, 0.25f);
-    stitcher->setFeaturesMatcher(matcher);
-    stitcher->setEstimator(new detail::HomographyBasedEstimator());
-    Ptr<detail::BundleAdjusterBase> adjuster;
-        adjuster = makePtr<detail::BundleAdjusterRay>();
-    adjuster->setConfThresh(0.3);
-    Mat_<uchar> refine_mask = Mat::zeros(3, 3, CV_8U);
-    refine_mask(0,0) = 1;
-    refine_mask(0,1) = 1;
-    refine_mask(0,2) = 1;
-    refine_mask(1,1) = 1;
-    refine_mask(1,2) = 1;
-    adjuster->setRefinementMask(refine_mask);
-    stitcher->setBundleAdjuster(adjuster);
-    stitcher->setSeamFinder(new detail::NoSeamFinder);
-    stitcher->setExposureCompensator(new detail::NoExposureCompensator());//exposure compensation
-    stitcher->setBlender(new detail::FeatherBlender()); */
 
     vector<Mat> masks;
     // get img1 and img2's size
@@ -147,9 +121,6 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
     pm1->copyTo(*pmasked1, mask1);
     pm2->copyTo(*pmasked2, mask2);
 
-    // Stitcher::Status state = (&pstitcher)->stitch(mats, masks, *pstitched);
-    // Stitcher::Status state = (pGStitcher2)->stitch(mats, masks, *pstitched);
-    // Stitcher::Status state = stitcher->stitch(mats, masks, *pstitched);
     // Stitcher::Status state = PreviewStitcher.Stitcher->stitch(mats, masks, *pstitched);
     Stitcher::Status state = PreviewStitcher.Stitcher->stitch(mats, *pstitched);
 
