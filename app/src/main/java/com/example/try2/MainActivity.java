@@ -302,7 +302,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
                     // to capture new frame
                     isFirstCaptured = true;
                     // initialize stitcher
-                    onSnapShotUI("First Image");
+                    onSnapShotUI("New/First Image");
 
                 } else { // first captured, gftt calculated, need to calculate optical flow
                     oflk.OFLK(inputFrame.gray());
@@ -320,7 +320,7 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
                         // get principle pano direction
                         String res = determinePanoDirection(cameraDir);
                         if (!res.contains("wrong")) { // if success to get a new frame
-                            // reset old frame
+                            // reset old frame after taking key frame (new frame)
                             isFirstCaptured = false;
                             // stitch
                             onSnapShotUI(res);
@@ -350,9 +350,9 @@ public class MainActivity extends CameraActivity implements CvCameraViewListener
             panoDir = d;
             return "Direction is: "+d.toString();
         } else if(panoDir == d){
-            return "Direction is same";
+            return "Direction is same, saved as key";
         } else{
-            return "Direction wrong";
+            return "Direction wrong, not saving";
         }
     }
 

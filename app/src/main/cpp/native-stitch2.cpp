@@ -43,6 +43,8 @@ Java_com_example_try2_ImageStitchNative_initStitcher(JNIEnv *env, jclass clazz) 
 
     stitcher->setRegistrationResol(0.6);
     stitcher->setWaveCorrection(false);
+    Ptr<BRISK> brisk = cv::BRISK::create();
+    stitcher->setFeaturesFinder(brisk);
     // stitcher->setWarper(new detail::CylindricalWarper(0.5f));
     // =match_conf defaults to 0.65, I choose 0.8, if there is too much feature, there will be no feature points, and 0.8 will fail
     // detail::BestOf2NearestMatcher *matcher = new detail::BestOf2NearestMatcher(false, 0.25f);
@@ -60,7 +62,7 @@ Java_com_example_try2_ImageStitchNative_initStitcher(JNIEnv *env, jclass clazz) 
     refine_mask(1,2) = 1;
     adjuster->setRefinementMask(refine_mask);
     stitcher->setBundleAdjuster(adjuster);
-    stitcher->setSeamFinder(new detail::NoSeamFinder);
+    stitcher->setSeamFinder(new detail::DpSeamFinder(detail::DpSeamFinder::COLOR_GRAD));
     stitcher->setExposureCompensator(new detail::NoExposureCompensator());//exposure compensation
     // stitcher->setBlender(new detail::FeatherBlender());
     stitcher->setBlender(new detail::MultiBandBlender());
@@ -121,8 +123,8 @@ Java_com_example_try2_ImageStitchNative_stitchMats2(JNIEnv *env, jclass clazz, j
     pm1->copyTo(*pmasked1, mask1);
     pm2->copyTo(*pmasked2, mask2);
 
-    // Stitcher::Status state = PreviewStitcher.Stitcher->stitch(mats, masks, *pstitched);
-    Stitcher::Status state = PreviewStitcher.Stitcher->stitch(mats, *pstitched);
+    Stitcher::Status state = PreviewStitcher.Stitcher->stitch(mats, masks, *pstitched);
+    // Stitcher::Status state = PreviewStitcher.Stitcher->stitch(mats, *pstitched);
 
     LOGI ("splicing result: %d", state);
 //        finalMat = clipping(finalMat);
